@@ -1,10 +1,256 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Neurochecklist</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurochecklist.net | BEFAST Stroke Tool</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        /* Modern, Clean Health Styling */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f7fafc;
+            color: #2d3748;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #e53e3e;
+            cursor: pointer;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            margin-left: 1.5rem;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        nav button:hover {
+            color: #e53e3e;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0.5rem;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn-primary { background-color: #e53e3e; color: white; }
+        .btn-secondary { background-color: #4a5568; color: white; }
+        .btn-danger { background-color: #e53e3e; color: white; }
+        .btn-success { background-color: #38a169; color: white; }
+
+        .progress-bar {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #718096;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin: 2rem 0;
+            line-height: 1.6;
+        }
+
+        #map {
+            height: 450px;
+            width: 100%;
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.875rem;
+            color: #718096;
+            background-color: #ffffff;
+            border-top: 1px solid #edf2f7;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Neurochecklist.net</h1>
-    <p>Our stroke assessment checklist is coming very soon!</p>
+
+    <header class="navbar">
+        <div class="logo" onclick="showPage('home')">🧠 Neurochecklist</div>
+        <nav>
+            <button onclick="showPage('assessment')">Start Assessment</button>
+            <button onclick="showPage('hospitals')">Find Hospitals</button>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        
+        <section id="home" class="page active">
+            <h1>Every Second Counts.</h1>
+            <p>Use our fast, privacy-focused tool to check for stroke symptoms using the medical BEFAST framework.</p>
+            <div style="margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="startAssessment()">Begin BEFAST Check</button>
+                <button class="btn btn-secondary" onclick="showPage('hospitals')">Locate Nearest ER</button>
+            </div>
+        </section>
+
+        <section id="assessment" class="page">
+            <h2 id="step-title">BEFAST Assessment: Balance</h2>
+            <div id="step-progress" class="progress-bar">Step 1 of 5</div>
+            <p id="step-text" class="question-text">Is the person experiencing sudden dizziness, loss of balance, or trouble walking?</p>
+            <div>
+                <button class="btn btn-danger" onclick="handleAnswer(true)">Yes, I see this</button>
+                <button class="btn btn-success" onclick="handleAnswer(false)">No symptom</button>
+            </div>
+        </section>
+
+        <section id="hospitals" class="page">
+            <h2>Nearest Emergency Care Centers</h2>
+            <p>Showing emergency options near your current location.</p>
+            <div id="map"></div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 Neurochecklist.net | Always call 911 immediately in an emergency.</p>
+    </footer>
+
+    <script>
+        // Page Router Engine
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            if (pageId === 'hospitals') {
+                setTimeout(loadMap, 200); // Allow map container time to render safely
+            }
+        }
+
+        // Assessment System States
+        let currentStep = 0;
+        let answers = [];
+        const questions = [
+            { id: 'B', title: 'Balance', text: 'Is the person experiencing sudden dizziness, loss of balance, or trouble walking?' },
+            { id: 'E', title: 'Eyes', text: 'Is there a sudden change in vision, double vision, or loss of sight in one or both eyes?' },
+            { id: 'F', title: 'Face', text: 'Ask the person to smile. Does one side of the face droop?' },
+            { id: 'A', title: 'Arms', text: 'Ask the person to raise both arms. Does one arm drift downward?' },
+            { id: 'S', title: 'Speech', text: 'Ask the person to repeat a simple phrase. Is their speech slurred or strange?' }
+        ];
+
+        function startAssessment() {
+            currentStep = 0;
+            answers = [];
+            updateQuestion();
+            showPage('assessment');
+        }
+
+        function updateQuestion() {
+            const q = questions[currentStep];
+            document.getElementById('step-title').innerText = `BEFAST Assessment: ${q.title}`;
+            document.getElementById('step-progress').innerText = `Step ${currentStep + 1} of 5`;
+            document.getElementById('step-text').innerText = q.text;
+        }
+
+        function handleAnswer(hasSymptom) {
+            answers.push(hasSymptom);
+
+            if (currentStep < questions.length - 1) {
+                currentStep++;
+                updateQuestion();
+            } else {
+                // Evaluation Matrix
+                const positiveSymptomFound = answers.includes(true);
+                if (positiveSymptomFound) {
+                    alert("⚠️ CRITICAL ALERT:\nStroke symptoms flagged. Please call emergency services (911) immediately.");
+                    showPage('hospitals');
+                } else {
+                    alert("No immediate BEFAST symptoms flagged. If you or the individual still feel unwell, please consult a medical professional.");
+                    showPage('home');
+                }
+            }
+        }
+
+        // Geolocation & Emergency Locator Map
+        let map = null;
+        function loadMap() {
+            let defaultLocation = [37.7749, -122.4194]; // Default backup location (San Francisco)
+
+            if (!map) {
+                map = L.map('map').setView(defaultLocation, 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+            }
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const userLat = position.coords.latitude;
+                    const userLon = position.coords.longitude;
+                    const userLoc = [userLat, userLon];
+
+                    map.setView(userLoc, 13);
+
+                    // Drop blue marker for User Location
+                    L.marker(userLoc).addTo(map).bindPopup('<b>Your Current Location</b>').openPopup();
+
+                    // Search for Nearby Emergency Rooms using Overpass API
+                    const overpassQuery = `[out:json];node["amenity"="hospital"](around:8000,${userLat},${userLon});out;`;
+                    const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
+
+                    fetch(url)
+                        .then(res => res.json())
+                        .then(data => {
+                            (data.elements || []).forEach(h => {
+                                L.marker([h.lat, h.lon]).addTo(map)
+                                    .bindPopup(`<b>${h.tags.name || "Emergency Medical Hospital"}</b><br>ER Open to Public`);
+                            });
+                        })
+                        .catch(err => console.error("Error connecting to live mapping infrastructure:", err));
+                });
+            }
+        }
+    </script>
 </body>
 </html>
