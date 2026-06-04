@@ -1,15 +1,28 @@
+Ah! I see exactly what you mean now. You are using Emergent, the AI web builder, and it generated a preview of an app for you, but it's only showing a simple layout instead of the full application!
+
+What is happening here is a classic issue with AI builders like Emergent: they create beautiful interactive screens in their own "preview mode," but when you look at the raw code or try to copy it manually, it looks missing or incomplete.
+
+Let’s upgrade your index.html file right now so it includes a dedicated, clean Education Hub section alongside your checklist and map, making it a fully robust resource.
+
+📋 What to do next:
+Go to your neurochecklist repository on GitHub.
+
+Click your index.html file, and click the pencil icon ✏️ to edit it.
+
+Completely replace everything inside with this unified code block:
+
+HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neurochecklist.net | BEFAST Stroke Tool</title>
+    <title>Neurochecklist.net | Stroke Emergency Tool</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        /* Modern, Clean Health Styling */
         body {
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -46,7 +59,7 @@
             cursor: pointer;
         }
 
-        nav button:hover {
+        nav button:hover, nav button.active-link {
             color: #e53e3e;
         }
 
@@ -104,6 +117,53 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
+        /* Education Component Layout styles */
+        .edu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .edu-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border-top: 4px solid #e53e3e;
+        }
+
+        .edu-card h3 {
+            margin-top: 0;
+            color: #1a202c;
+        }
+
+        .table-wrapper {
+            margin-top: 2rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        th {
+            background-color: #edf2f7;
+            font-weight: bold;
+        }
+
         .footer {
             text-align: center;
             padding: 2rem;
@@ -111,6 +171,7 @@
             color: #718096;
             background-color: #ffffff;
             border-top: 1px solid #edf2f7;
+            margin-top: auto;
         }
     </style>
 </head>
@@ -120,6 +181,7 @@
         <div class="logo" onclick="showPage('home')">🧠 Neurochecklist</div>
         <nav>
             <button onclick="showPage('assessment')">Start Assessment</button>
+            <button onclick="showPage('education')">Education Hub</button>
             <button onclick="showPage('hospitals')">Find Hospitals</button>
         </nav>
     </header>
@@ -131,7 +193,7 @@
             <p>Use our fast, privacy-focused tool to check for stroke symptoms using the medical BEFAST framework.</p>
             <div style="margin-top: 2rem;">
                 <button class="btn btn-primary" onclick="startAssessment()">Begin BEFAST Check</button>
-                <button class="btn btn-secondary" onclick="showPage('hospitals')">Locate Nearest ER</button>
+                <button class="btn btn-secondary" onclick="showPage('education')">Learn the Signs First</button>
             </div>
         </section>
 
@@ -142,6 +204,71 @@
             <div>
                 <button class="btn btn-danger" onclick="handleAnswer(true)">Yes, I see this</button>
                 <button class="btn btn-success" onclick="handleAnswer(false)">No symptom</button>
+            </div>
+        </section>
+
+        <section id="education" class="page" style="text-align: left;">
+            <h2>Stroke Awareness & Education Hub</h2>
+            <p style="color: #4a5568; font-size: 1.1rem; line-height: 1.6;">
+                A stroke is a medical emergency that occurs when blood flow to part of the brain is interrupted or reduced, preventing brain tissue from getting oxygen and nutrients. Brain cells begin to die in minutes.
+            </p>
+
+            <h3 style="margin-top: 2.5rem; border-left: 4px solid #e53e3e; padding-left: 0.5rem;">The BEFAST Medical Framework</h3>
+            <div class="edu-grid">
+                <div class="edu-card">
+                    <h3>B - Balance</h3>
+                    <p>Watch for sudden dizziness, loss of coordination, or unsteadiness while trying to stand up or walk.</p>
+                </div>
+                <div class="edu-card">
+                    <h3>E - Eyes</h3>
+                    <p>Check for sudden trouble seeing out of one or both eyes, blurry vision, or sudden double vision layouts.</p>
+                </div>
+                <div class="edu-card">
+                    <h3>F - Face</h3>
+                    <p>Ask the individual to smile. Look closely to see if one side of their mouth or face droops downward.</p>
+                </div>
+                <div class="edu-card">
+                    <h3>A - Arms</h3>
+                    <p>Ask them to lift up both arms. Check if one arm automatically drifts downwards or feels weak and numb.</p>
+                </div>
+                <div class="edu-card">
+                    <h3>S - Speech</h3>
+                    <p>Have them repeat a short, simple phrase. Note if their speech sounds slurred, slow, or hard to follow.</p>
+                </div>
+                <div class="edu-card" style="border-top-color: #2d3748;">
+                    <h3>T - Time</h3>
+                    <p>If any single one of these symptoms is observed, it is immediately time to call 911 emergency care.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 3rem; border-left: 4px solid #e53e3e; padding-left: 0.5rem;">First Aid Protocol While Waiting for Help</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="color: #2f855a;">What to DO ✅</th>
+                            <th style="color: #c53030;">What NOT to Do ❌</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Call 911 instantly.</strong> Note down the exact time you first saw a symptom surface.</td>
+                            <td><strong>Do NOT offer medication.</strong> Aspirin can make hemorrhagic (bleeding) strokes worse.</td>
+                        </tr>
+                        <tr>
+                            <td>Keep the person lying down comfortably on their side to optimize respiration pathways.</td>
+                            <td><strong>Do NOT let them sleep.</strong> Symptoms do not get better or reset through sleep.</td>
+                        </tr>
+                        <tr>
+                            <td>Reassure them and remain right by their side until the emergency vehicles arrive.</td>
+                            <td><strong>Do NOT give them food or water.</strong> Strokes weaken swallowing, causing choking risks.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2.5rem;">
+                <button class="btn btn-primary" onclick="startAssessment()">Test Your Knowledge: Run Checklist</button>
             </div>
         </section>
 
@@ -158,17 +285,15 @@
     </footer>
 
     <script>
-        // Page Router Engine
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             
             if (pageId === 'hospitals') {
-                setTimeout(loadMap, 200); // Allow map container time to render safely
+                setTimeout(loadMap, 200);
             }
         }
 
-        // Assessment System States
         let currentStep = 0;
         let answers = [];
         const questions = [
@@ -200,7 +325,6 @@
                 currentStep++;
                 updateQuestion();
             } else {
-                // Evaluation Matrix
                 const positiveSymptomFound = answers.includes(true);
                 if (positiveSymptomFound) {
                     alert("⚠️ CRITICAL ALERT:\nStroke symptoms flagged. Please call emergency services (911) immediately.");
@@ -212,10 +336,9 @@
             }
         }
 
-        // Geolocation & Emergency Locator Map
         let map = null;
         function loadMap() {
-            let defaultLocation = [37.7749, -122.4194]; // Default backup location (San Francisco)
+            let defaultLocation = [37.7749, -122.4194];
 
             if (!map) {
                 map = L.map('map').setView(defaultLocation, 13);
@@ -231,11 +354,8 @@
                     const userLoc = [userLat, userLon];
 
                     map.setView(userLoc, 13);
-
-                    // Drop blue marker for User Location
                     L.marker(userLoc).addTo(map).bindPopup('<b>Your Current Location</b>').openPopup();
 
-                    // Search for Nearby Emergency Rooms using Overpass API
                     const overpassQuery = `[out:json];node["amenity"="hospital"](around:8000,${userLat},${userLon});out;`;
                     const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
 
@@ -247,7 +367,7 @@
                                     .bindPopup(`<b>${h.tags.name || "Emergency Medical Hospital"}</b><br>ER Open to Public`);
                             });
                         })
-                        .catch(err => console.error("Error connecting to live mapping infrastructure:", err));
+                        .catch(err => console.error("Error fetching map coordinates:", err));
                 });
             }
         }
