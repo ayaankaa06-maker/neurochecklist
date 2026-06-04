@@ -1,4 +1,10 @@
+Here is your updated, fully expanded index.html file.
 
+The Learn Section has been completely overhauled with the latest medical statistics and critical timelines, including its ranking as a leading cause of death and disability, the vital "Golden Hour" treatment window, and the exact clinical metrics healthcare providers look for.
+
+Replace your existing code layout on GitHub with this complete version:
+
+HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -171,7 +177,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div class="lg:col-span-4 bg-white border border-sand rounded-2xl p-6 shadow-sm overflow-y-auto max-h-[480px]">
-                    <h3 class="font-display text-xl font-bold text-[#1A1A1A] mb-4">Nearest ER Facilites</h3>
+                    <h3 class="font-display text-xl font-bold text-[#1A1A1A] mb-4">Nearest ER Facilities</h3>
                     <div id="hospital-list" class="space-y-4">
                         <p class="text-sm text-[#6B6B6B]">Awaiting location services configuration sync...</p>
                     </div>
@@ -182,18 +188,64 @@
             </div>
         </section>
 
-        <section id="learn" class="page max-w-4xl mx-auto">
-            <h2 class="font-display text-4xl font-black tracking-tight text-[#1A1A1A]">Stroke Awareness Education</h2>
-            <p class="text-[#4A4A4A] mt-2 text-lg">Every minute untreated causes massive, structural brain matrix tissue depletion. Memorize the BEFAST system protocols.</p>
+        <section id="learn" class="page max-w-4xl mx-auto space-y-12">
+            <div>
+                <h2 class="font-display text-4xl font-black tracking-tight text-[#1A1A1A]">Stroke Impact & Global Statistics</h2>
+                <p class="text-[#4A4A4A] mt-2 text-lg">Understanding the clinical severity, critical rescue windows, and real numbers behind stroke incidence helps maximize survivability outcomes.</p>
+            </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="bg-white p-6 border border-sand rounded-xl text-center">
+                    <div class="text-4xl font-display font-black text-emergency">No. 5</div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-2">Cause of Death</p>
+                    <p class="text-sm text-[#4A4A4A] mt-2">Stroke stands as the 5th leading cause of death in the United States, taking over 160,000 lives annually.</p>
+                </div>
+                <div class="bg-white p-6 border border-sand rounded-xl text-center">
+                    <div class="text-4xl font-display font-black text-forest">No. 1</div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-2">Cause of Disability</p>
+                    <p class="text-sm text-[#4A4A4A] mt-2">It remains the leading cause of serious long-term functional disability, severely impacting physical mobility.</p>
+                </div>
+                <div class="bg-white p-6 border border-sand rounded-xl text-center">
+                    <div class="text-4xl font-display font-black text-amber-600">1.9 Million</div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-2">Brain Cells Lost</p>
+                    <p class="text-sm text-[#4A4A4A] mt-2">For every single minute a stroke goes untreated, approximately 1.9 million vital neurons die due to oxygen starvation.</p>
+                </div>
+            </div>
+
+            <div class="bg-white border border-sand rounded-2xl p-6 md:p-8">
+                <h3 class="font-display text-2xl font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
+                    <i data-lucide="timer" class="text-emergency"></i> The Critical Treatment Windows
+                </h3>
+                <p class="text-sm text-[#4A4A4A] mb-6 leading-relaxed">
+                    Time is everything during a stroke event. Medical intervention relies on strict pharmacological and surgical timelines from the exact moment symptoms begin.
+                </p>
+                <div class="space-y-6 relative border-l-2 border-sand ml-4 pl-6">
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-0 bg-emergency text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">1</span>
+                        <h4 class="font-bold text-base text-[#1A1A1A]">0 to 60 Minutes: The Golden Hour</h4>
+                        <p class="text-sm text-[#6B6B6B] mt-1">Receiving specialized care within the first hour gives patients the absolute highest chance of complete, complication-free reversal and physical recovery.</p>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-0 bg-forest text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">2</span>
+                        <h4 class="font-bold text-base text-[#1A1A1A]">Up to 3 to 4.5 Hours: The Clot-Busting Thrombolytic Window</h4>
+                        <p class="text-sm text-[#6B6B6B] mt-1">Alteplase or Tenecteplase (tPA) injections must be administered via IV within this strict window to dissolve blood clots safely. Beyond 4.5 hours, the risk of brain bleeding increases drastically.</p>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-0 bg-zinc-700 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        <h4 class="font-bold text-base text-[#1A1A1A]">Up to 24 Hours: Endovascular Mechanical Thrombectomy</h4>
+                        <p class="text-sm text-[#6B6B6B] mt-1">For large-vessel blockages, specialized surgical teams can navigate catheters inside the brain to pull clots out physically. This option diminishes rapidly as tissue decays.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white p-6 border border-sand rounded-xl">
-                    <h3 class="font-display text-lg font-bold text-forest mb-2">Ischemic Stroke</h3>
-                    <p class="text-sm text-[#6B6B6B] leading-relaxed">Occurs when clotting anomalies lodge tightly inside neural blood pathways, shutting down regional oxygen streams completely. Represents roughly 85% of standard cases.</p>
+                    <h3 class="font-display text-xl font-bold text-forest mb-2">Ischemic Stroke (Blood Blockage)</h3>
+                    <p class="text-sm text-[#6B6B6B] leading-relaxed">Occurs when clotting anomalies or plaque buildup lodge tightly inside internal cerebral arterial vessels, shutting down localized oxygen pathways. This represents roughly 87% of all recorded incidents.</p>
                 </div>
                 <div class="bg-white p-6 border border-sand rounded-xl">
-                    <h3 class="font-display text-lg font-bold text-emergency mb-2">Hemorrhagic Stroke</h3>
-                    <p class="text-sm text-[#6B6B6B] leading-relaxed">Triggered when structurally compromised blood vessels experience localized rupture dynamics, leaking high-pressure blood metrics directly into internal cerebral areas.</p>
+                    <h3 class="font-display text-xl font-bold text-emergency mb-2">Hemorrhagic Stroke (Vessel Rupture)</h3>
+                    <p class="text-sm text-[#6B6B6B] leading-relaxed">Triggered when structurally compromised arteries or aneurysms burst, leaking high-pressure blood metrics directly into cerebral compartments, building deadly intracranial pressure.</p>
                 </div>
             </div>
         </section>
@@ -216,7 +268,7 @@
     </footer>
 
     <script>
-        // Page Router Router Configuration
+        // Page Router Configuration
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -265,7 +317,7 @@
                     document.getElementById('emergency-alert-banner').classList.remove('hidden');
                     showPage('hospitals');
                 } else {
-                    alert("No immediate indicators flagged via this script execution layout layer. Consult healthcare channels manually if conditions deteriorate.");
+                    alert("No immediate indicators flagged via this assessment layer. Consult healthcare channels manually if conditions deteriorate.");
                     showPage('home');
                 }
             }
@@ -314,7 +366,7 @@
                     const elements = data.elements || [];
 
                     if (elements.length === 0) {
-                        listContainer.innerHTML = '<p class="text-sm text-amber-600">No facilities registered within localized OpenStreetMap search radius fields.</p>';
+                        listContainer.innerHTML = '<p class="text-sm text-amber-600">No facilities registered within localized search fields.</p>';
                         return;
                     }
 
