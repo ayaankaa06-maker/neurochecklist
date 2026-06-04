@@ -1,362 +1,353 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neurochecklist.net | Stroke Emergency Tool</title>
+    <title>BEFAST.care | Stroke Emergency Tool</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    <script>
+        // Custom Tailwind Aesthetic Extensions matching your React theme
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                        display: ['Cabinet Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        cream: '#F8F7F4',
+                        sand: '#E5E0D8',
+                        sage: '#D1D9D3',
+                        forest: '#2D4A3E',
+                        'forest-dark': '#1E332B',
+                        emergency: '#D33F49',
+                        'emergency-dark': '#B91C1C',
+                        'emergency-soft': '#FFF0F0',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
+        @import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+
         body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f7fafc;
-            color: #2d3748;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            background-color: #F8F7F4;
+            color: #1A1A1A;
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
+        .font-display { font-family: 'Cabinet Grotesk', sans-serif; }
+        
+        .page { display: none; }
+        .page.active { display: block; }
 
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        @keyframes emergency-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(211, 63, 73, 0.6); }
+            50% { box-shadow: 0 0 0 16px rgba(211, 63, 73, 0); }
         }
-
-        .logo {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #e53e3e;
-            cursor: pointer;
-        }
-
-        nav button {
-            background: none;
-            border: none;
-            margin-left: 1.5rem;
-            color: #4a5568;
-            font-weight: 500;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        nav button:hover, nav button.active-link {
-            color: #e53e3e;
-        }
-
-        .main-content {
-            max-width: 800px;
-            margin: 3rem auto;
-            padding: 0 1.5rem;
-            text-align: center;
-            flex-grow: 1;
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.375rem;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 600;
-            margin: 0.5rem;
-            display: inline-block;
-            text-decoration: none;
-        }
-
-        .btn-primary { background-color: #e53e3e; color: white; }
-        .btn-secondary { background-color: #4a5568; color: white; }
-        .btn-danger { background-color: #e53e3e; color: white; }
-        .btn-success { background-color: #38a169; color: white; }
-
-        .progress-bar {
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            color: #718096;
-            font-weight: bold;
-        }
-
-        .question-text {
-            font-size: 1.3rem;
-            margin: 2rem 0;
-            line-height: 1.6;
-        }
-
+        .animate-emergency-pulse { animation: emergency-pulse 1.8s ease-out infinite; }
+        
         #map {
-            height: 450px;
+            height: 480px;
             width: 100%;
-            margin-top: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            z-index: 1;
         }
-
-        /* Education Component Layout styles */
-        .edu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-            text-align: left;
-        }
-
-        .edu-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            border-top: 4px solid #e53e3e;
-        }
-
-        .edu-card h3 {
-            margin-top: 0;
-            color: #1a202c;
-        }
-
-        .table-wrapper {
-            margin-top: 2rem;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #edf2f7;
-        }
-
-        th {
-            background-color: #edf2f7;
-            font-weight: bold;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 2rem;
-            font-size: 0.875rem;
-            color: #718096;
-            background-color: #ffffff;
-            border-top: 1px solid #edf2f7;
-            margin-top: auto;
-        }
+        .leaflet-container { font-family: 'Manrope', sans-serif !important; }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col bg-cream">
 
-    <header class="navbar">
-        <div class="logo" onclick="showPage('home')">🧠 Neurochecklist</div>
-        <nav>
-            <button onclick="showPage('assessment')">Start Assessment</button>
-            <button onclick="showPage('education')">Education Hub</button>
-            <button onclick="showPage('hospitals')">Find Hospitals</button>
-        </nav>
+    <header class="backdrop-blur-xl bg-cream/80 border-b border-sand z-50 sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 md:h-20 flex items-center justify-between gap-4">
+            <div onclick="showPage('home')" class="flex items-center gap-2 group cursor-pointer">
+                <span class="w-9 h-9 rounded-xl bg-forest flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+                    <i data-lucide="activity" class="w-5 h-5" stroke-width="2.5"></i>
+                </span>
+                <span class="font-display font-bold tracking-tight text-lg md:text-xl text-[#1A1A1A]">
+                    BEFAST<span class="text-emergency">.</span>care
+                </span>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-1" aria-label="Primary">
+                <button onclick="showPage('home')" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-[#4A4A4A] hover:bg-sand">Home</button>
+                <button onclick="startAssessment()" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-[#4A4A4A] hover:bg-sand">Assess</button>
+                <button onclick="showPage('hospitals')" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-[#4A4A4A] hover:bg-sand">Hospitals</button>
+                <button onclick="showPage('learn')" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-[#4A4A4A] hover:bg-sand">Learn</button>
+            </nav>
+
+            <a href="tel:911" class="inline-flex items-center gap-2 bg-emergency text-white rounded-full px-4 md:px-5 py-2 md:py-2.5 text-sm font-bold hover:bg-emergency-dark transition-all shadow-sm">
+                <i data-lucide="phone" class="w-4 h-4" stroke-width="2.5"></i>
+                <span>Call 911</span>
+            </a>
+        </div>
     </header>
 
-    <main class="main-content">
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
-        <section id="home" class="page active">
-            <h1>Every Second Counts.</h1>
-            <p>Use our fast, privacy-focused tool to check for stroke symptoms using the medical BEFAST framework.</p>
-            <div style="margin-top: 2rem;">
-                <button class="btn btn-primary" onclick="startAssessment()">Begin BEFAST Check</button>
-                <button class="btn btn-secondary" onclick="showPage('education')">Learn the Signs First</button>
+        <section id="home" class="page active animate-fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center py-6 md:py-12">
+                <div class="lg:col-span-7">
+                    <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-emergency-dark bg-emergency-soft border border-emergency/20 px-4 py-2 rounded-full">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        Stroke can strike in seconds
+                    </span>
+                    <h1 class="font-display mt-6 text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter text-[#1A1A1A] leading-[0.95]">
+                        Recognize a stroke.<br />
+                        <span class="text-forest">Save a life.</span>
+                    </h1>
+                    <p class="mt-6 text-base md:text-lg text-[#4A4A4A] leading-relaxed max-w-xl">
+                        Use the <strong>BEFAST</strong> method — a simple, doctor-recommended check — to spot the warning signs of a stroke in seconds. Then find the closest emergency hospital, fast.
+                    </p>
+
+                    <div class="mt-10 flex flex-wrap items-center gap-4">
+                        <button onclick="startAssessment()" class="bg-forest text-white hover:bg-forest-dark transition-all rounded-full px-8 py-4 font-semibold shadow-sm inline-flex items-center justify-center gap-2 group">
+                            Start BEFAST check
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                        <button onclick="showPage('hospitals')" class="bg-transparent border-2 border-forest text-forest hover:bg-sage transition-all rounded-full px-8 py-4 font-semibold inline-flex items-center justify-center gap-2">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            Find nearest hospital
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5">
+                    <div class="bg-emergency-soft rounded-2xl border-l-8 border-emergency p-6 md:p-8 shadow-md">
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-emergency-dark">Suspect a stroke right now?</p>
+                        <h3 class="font-display text-2xl md:text-3xl font-bold text-[#1A1A1A] mt-2">Don't wait. Don't drive.</h3>
+                        <p class="text-[#4A4A4A] mt-3 leading-relaxed">
+                          Call 911 immediately. Note the <strong>exact time</strong> the first symptom appeared.
+                        </p>
+                        <a href="tel:911" class="mt-6 bg-emergency text-white hover:bg-emergency-dark transition-all rounded-lg px-8 py-5 font-bold uppercase tracking-widest shadow-lg flex items-center justify-center gap-3 text-lg animate-emergency-pulse">
+                          <i data-lucide="phone" class="w-6 h-6" stroke-width="2.5"></i>
+                          Call 911
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section id="assessment" class="page">
-            <h2 id="step-title">BEFAST Assessment: Balance</h2>
-            <div id="step-progress" class="progress-bar">Step 1 of 5</div>
-            <p id="step-text" class="question-text">Is the person experiencing sudden dizziness, loss of balance, or trouble walking?</p>
-            <div>
-                <button class="btn btn-danger" onclick="handleAnswer(true)">Yes, I see this</button>
-                <button class="btn btn-success" onclick="handleAnswer(false)">No symptom</button>
+        <section id="assessment" class="page max-w-3xl mx-auto bg-white border border-sand rounded-3xl p-6 md:p-10 shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+                <span id="step-letter" class="w-14 h-14 rounded-2xl bg-sage flex items-center justify-center font-display text-3xl font-black text-forest">B</span>
+                <div id="step-progress" class="text-xs font-bold uppercase tracking-[0.15em] text-[#6B6B6B]">Step 1 of 5</div>
             </div>
-        </section>
-
-        <section id="education" class="page" style="text-align: left;">
-            <h2>Stroke Awareness & Education Hub</h2>
-            <p style="color: #4a5568; font-size: 1.1rem; line-height: 1.6;">
-                A stroke is a medical emergency that occurs when blood flow to part of the brain is interrupted or reduced, preventing brain tissue from getting oxygen and nutrients. Brain cells begin to die in minutes.
-            </p>
-
-            <h3 style="margin-top: 2.5rem; border-left: 4px solid #e53e3e; padding-left: 0.5rem;">The BEFAST Medical Framework</h3>
-            <div class="edu-grid">
-                <div class="edu-card">
-                    <h3>B - Balance</h3>
-                    <p>Watch for sudden dizziness, loss of coordination, or unsteadiness while trying to stand up or walk.</p>
-                </div>
-                <div class="edu-card">
-                    <h3>E - Eyes</h3>
-                    <p>Check for sudden trouble seeing out of one or both eyes, blurry vision, or sudden double vision layouts.</p>
-                </div>
-                <div class="edu-card">
-                    <h3>F - Face</h3>
-                    <p>Ask the individual to smile. Look closely to see if one side of their mouth or face droops downward.</p>
-                </div>
-                <div class="edu-card">
-                    <h3>A - Arms</h3>
-                    <p>Ask them to lift up both arms. Check if one arm automatically drifts downwards or feels weak and numb.</p>
-                </div>
-                <div class="edu-card">
-                    <h3>S - Speech</h3>
-                    <p>Have them repeat a short, simple phrase. Note if their speech sounds slurred, slow, or hard to follow.</p>
-                </div>
-                <div class="edu-card" style="border-top-color: #2d3748;">
-                    <h3>T - Time</h3>
-                    <p>If any single one of these symptoms is observed, it is immediately time to call 911 emergency care.</p>
-                </div>
-            </div>
-
-            <h3 style="margin-top: 3rem; border-left: 4px solid #e53e3e; padding-left: 0.5rem;">First Aid Protocol While Waiting for Help</h3>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="color: #2f855a;">What to DO ✅</th>
-                            <th style="color: #c53030;">What NOT to Do ❌</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Call 911 instantly.</strong> Note down the exact time you first saw a symptom surface.</td>
-                            <td><strong>Do NOT offer medication.</strong> Aspirin can make hemorrhagic (bleeding) strokes worse.</td>
-                        </tr>
-                        <tr>
-                            <td>Keep the person lying down comfortably on their side to optimize respiration pathways.</td>
-                            <td><strong>Do NOT let them sleep.</strong> Symptoms do not get better or reset through sleep.</td>
-                        </tr>
-                        <tr>
-                            <td>Reassure them and remain right by their side until the emergency vehicles arrive.</td>
-                            <td><strong>Do NOT give them food or water.</strong> Strokes weaken swallowing, causing choking risks.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <h2 id="step-label" class="font-display text-3xl font-bold text-[#1A1A1A]">Balance Assessment</h2>
+            <p id="step-question" class="text-xl text-forest font-semibold mt-4"></p>
+            <p id="step-description" class="text-[#4A4A4A] mt-2 leading-relaxed text-sm bg-cream p-4 rounded-xl border border-sand"></p>
             
-            <div style="text-align: center; margin-top: 2.5rem;">
-                <button class="btn btn-primary" onclick="startAssessment()">Test Your Knowledge: Run Checklist</button>
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                <button onclick="handleAnswer(true)" class="flex-1 bg-emergency text-white hover:bg-emergency-dark py-4 px-6 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i> Yes, I observe this symptom
+                </button>
+                <button onclick="handleAnswer(false)" class="flex-1 bg-forest text-white hover:bg-forest-dark py-4 px-6 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-2">
+                    <i data-lucide="check" class="w-5 h-5"></i> No symptom present
+                </button>
             </div>
         </section>
 
         <section id="hospitals" class="page">
-            <h2>Nearest Emergency Care Centers</h2>
-            <p>Showing emergency options near your current location.</p>
-            <div id="map"></div>
+            <div id="emergency-alert-banner" class="hidden mb-8 bg-emergency-soft border-l-8 border-emergency rounded-r-2xl p-6 md:p-8 shadow-md">
+                <div class="flex items-start gap-4">
+                    <i data-lucide="clock" class="w-7 h-7 text-emergency-dark flex-shrink-0 mt-1" stroke-width="2.5"></i>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-emergency-dark">Emergency</p>
+                        <h3 class="font-display text-2xl md:text-3xl font-bold text-[#1A1A1A] mt-1">Possible stroke detected. Every minute matters.</h3>
+                        <p class="mt-3 text-[#4A4A4A] leading-relaxed">Brain cells die every second a stroke goes untreated. Do not drive yourself. Call 911 right now.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-4 bg-white border border-sand rounded-2xl p-6 shadow-sm overflow-y-auto max-h-[480px]">
+                    <h3 class="font-display text-xl font-bold text-[#1A1A1A] mb-4">Nearest ER Facilites</h3>
+                    <div id="hospital-list" class="space-y-4">
+                        <p class="text-sm text-[#6B6B6B]">Awaiting location services configuration sync...</p>
+                    </div>
+                </div>
+                <div class="lg:col-span-8">
+                    <div id="map" class="rounded-2xl border border-sand overflow-hidden shadow-sm"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="learn" class="page max-w-4xl mx-auto">
+            <h2 class="font-display text-4xl font-black tracking-tight text-[#1A1A1A]">Stroke Awareness Education</h2>
+            <p class="text-[#4A4A4A] mt-2 text-lg">Every minute untreated causes massive, structural brain matrix tissue depletion. Memorize the BEFAST system protocols.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <div class="bg-white p-6 border border-sand rounded-xl">
+                    <h3 class="font-display text-lg font-bold text-forest mb-2">Ischemic Stroke</h3>
+                    <p class="text-sm text-[#6B6B6B] leading-relaxed">Occurs when clotting anomalies lodge tightly inside neural blood pathways, shutting down regional oxygen streams completely. Represents roughly 85% of standard cases.</p>
+                </div>
+                <div class="bg-white p-6 border border-sand rounded-xl">
+                    <h3 class="font-display text-lg font-bold text-emergency mb-2">Hemorrhagic Stroke</h3>
+                    <p class="text-sm text-[#6B6B6B] leading-relaxed">Triggered when structurally compromised blood vessels experience localized rupture dynamics, leaking high-pressure blood metrics directly into internal cerebral areas.</p>
+                </div>
+            </div>
         </section>
 
     </main>
 
-    <footer class="footer">
-        <p>© 2026 Neurochecklist.net | Always call 911 immediately in an emergency.</p>
+    <footer class="bg-[#1A1A1A] text-sand mt-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-zinc-800 pb-8">
+                <div>
+                    <span class="font-display font-bold text-xl text-white">BEFAST<span class="text-emergency">.</span>care</span>
+                    <p class="text-xs text-zinc-400 mt-1 max-w-sm">Informational checklist platform created to distribute stroke symptom mapping algorithms accurately to public audiences.</p>
+                </div>
+                <a href="tel:911" class="bg-emergency text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 hover:bg-emergency-dark transition-all">
+                    <i data-lucide="phone" class="w-4 h-4"></i> Call 911 Immediately
+                </a>
+            </div>
+            <p class="text-[11px] text-zinc-500 mt-6 leading-relaxed"><strong>Medical disclaimer:</strong> This tracking utility acts as an educational compilation schema. It holds no structural authority to override diagnostic evaluations conducted by licensed emergency practitioners.</p>
+        </div>
     </footer>
 
     <script>
+        // Page Router Router Configuration
         function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             
             if (pageId === 'hospitals') {
-                setTimeout(loadMap, 200);
+                setTimeout(initializeMapModule, 250);
             }
         }
 
-        let currentStep = 0;
-        let answers = [];
-        const questions = [
-            { id: 'B', title: 'Balance', text: 'Is the person experiencing sudden dizziness, loss of balance, or trouble walking?' },
-            { id: 'E', title: 'Eyes', text: 'Is there a sudden change in vision, double vision, or loss of sight in one or both eyes?' },
-            { id: 'F', title: 'Face', text: 'Ask the person to smile. Does one side of the face droop?' },
-            { id: 'A', title: 'Arms', text: 'Ask the person to raise both arms. Does one arm drift downward?' },
-            { id: 'S', title: 'Speech', text: 'Ask the person to repeat a simple phrase. Is their speech slurred or strange?' }
+        // Checklist Definition Matrix Array
+        const BEFAST_STEPS = [
+            { key: "balance", letter: "B", label: "Balance", question: "Is the person suddenly losing balance or coordination?", description: "Look for sudden dizziness, loss of balance, or trouble walking that wasn't there moments ago." },
+            { key: "eyes", letter: "E", label: "Eyes", question: "Are they experiencing sudden vision changes?", description: "Blurred, double, or lost vision in one or both eyes that came on without warning." },
+            { key: "face", letter: "F", label: "Face", question: "Is one side of their face drooping?", description: "Ask them to smile. Does one side of the face droop, or does the smile look uneven?" },
+            { key: "arms", letter: "A", label: "Arms", question: "Is one arm weak or drifting downward?", description: "Ask them to raise both arms. Does one arm drift down, feel numb, or refuse to move?" },
+            { key: "speech", letter: "S", label: "Speech", question: "Is their speech slurred or hard to understand?", description: "Listen closely for slurring, structurally scrambled vocabulary arrangements, or complete muteness." }
         ];
 
+        let assessmentIndex = 0;
+        let answersLogged = [];
+
         function startAssessment() {
-            currentStep = 0;
-            answers = [];
-            updateQuestion();
+            assessmentIndex = 0;
+            answersLogged = [];
+            renderAssessmentStep();
             showPage('assessment');
         }
 
-        function updateQuestion() {
-            const q = questions[currentStep];
-            document.getElementById('step-title').innerText = `BEFAST Assessment: ${q.title}`;
-            document.getElementById('step-progress').innerText = `Step ${currentStep + 1} of 5`;
-            document.getElementById('step-text').innerText = q.text;
+        function renderAssessmentStep() {
+            const step = BEFAST_STEPS[assessmentIndex];
+            document.getElementById('step-letter').innerText = step.letter;
+            document.getElementById('step-progress').innerText = `Step ${assessmentIndex + 1} of 5`;
+            document.getElementById('step-label').innerText = `${step.label} Check`;
+            document.getElementById('step-question').innerText = step.question;
+            document.getElementById('step-description').innerText = step.description;
         }
 
-        function handleAnswer(hasSymptom) {
-            answers.push(hasSymptom);
-
-            if (currentStep < questions.length - 1) {
-                currentStep++;
-                updateQuestion();
+        function handleAnswer(symptomPresent) {
+            answersLogged.push(symptomPresent);
+            if (assessmentIndex < BEFAST_STEPS.length - 1) {
+                assessmentIndex++;
+                renderAssessmentStep();
             } else {
-                const positiveSymptomFound = answers.includes(true);
-                if (positiveSymptomFound) {
-                    alert("⚠️ CRITICAL ALERT:\nStroke symptoms flagged. Please call emergency services (911) immediately.");
+                const positiveMarkersFound = answersLogged.includes(true);
+                if (positiveMarkersFound) {
+                    document.getElementById('emergency-alert-banner').classList.remove('hidden');
                     showPage('hospitals');
                 } else {
-                    alert("No immediate BEFAST symptoms flagged. If you or the individual still feel unwell, please consult a medical professional.");
+                    alert("No immediate indicators flagged via this script execution layout layer. Consult healthcare channels manually if conditions deteriorate.");
                     showPage('home');
                 }
             }
         }
 
-        let map = null;
-        function loadMap() {
-            let defaultLocation = [37.7749, -122.4194];
+        // Geospatial Leaflet Engine Integration
+        let mapInstance = null;
+        let userMarker = null;
 
-            if (!map) {
-                map = L.map('map').setView(defaultLocation, 13);
+        function initializeMapModule() {
+            let backupCoords = [37.7749, -122.4194]; // San Francisco Default Backup
+
+            if (!mapInstance) {
+                mapInstance = L.map('map').setView(backupCoords, 12);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(map);
+                    attribution: '&copy; OpenStreetMap entries'
+                }).addTo(mapInstance);
             }
 
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    const userLat = position.coords.latitude;
-                    const userLon = position.coords.longitude;
-                    const userLoc = [userLat, userLon];
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    
+                    mapInstance.setView([lat, lon], 13);
 
-                    map.setView(userLoc, 13);
-                    L.marker(userLoc).addTo(map).bindPopup('<b>Your Current Location</b>').openPopup();
+                    if (userMarker) mapInstance.removeLayer(userMarker);
+                    userMarker = L.circleMarker([lat, lon], { color: '#2D4A3E', radius: 10, fillOpacity: 0.8 }).addTo(mapInstance).bindPopup("Current Position Pin");
 
-                    const overpassQuery = `[out:json];node["amenity"="hospital"](around:8000,${userLat},${userLon});out;`;
-                    const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
-
-                    fetch(url)
-                        .then(res => res.json())
-                        .then(data => {
-                            (data.elements || []).forEach(h => {
-                                L.marker([h.lat, h.lon]).addTo(map)
-                                    .bindPopup(`<b>${h.tags.name || "Emergency Medical Hospital"}</b><br>ER Open to Public`);
-                            });
-                        })
-                        .catch(err => console.error("Error fetching map coordinates:", err));
+                    executeOverpassHospitalSearch(lat, lon);
                 });
             }
         }
+
+        function executeOverpassHospitalSearch(lat, lon) {
+            const query = `[out:json][timeout:25];(node["amenity"="hospital"](around:15000,${lat},${lon});way["amenity"="hospital"](around:15000,${lat},${lon}););out center;`;
+            const endpoint = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+
+            const listContainer = document.getElementById('hospital-list');
+            listContainer.innerHTML = '<p class="text-sm text-[#4A4A4A]">Querying nearby emergency network grid...</p>';
+
+            fetch(endpoint)
+                .then(res => res.json())
+                .then(data => {
+                    listContainer.innerHTML = '';
+                    const elements = data.elements || [];
+
+                    if (elements.length === 0) {
+                        listContainer.innerHTML = '<p class="text-sm text-amber-600">No facilities registered within localized OpenStreetMap search radius fields.</p>';
+                        return;
+                    }
+
+                    elements.forEach(element => {
+                        const name = element.tags.name || "Emergency Facility Hub";
+                        const itemLat = element.lat || (element.center && element.center.lat);
+                        const itemLon = element.lon || (element.center && element.center.lon);
+
+                        if (!itemLat || !itemLon) return;
+
+                        // Create Side Card Layout
+                        const card = document.createElement('div');
+                        card.className = "p-4 bg-cream rounded-xl border border-sand hover:border-forest cursor-pointer transition-colors";
+                        card.innerHTML = `<h4 class="font-bold text-sm text-[#1A1A1A]">${name}</h4><p class="text-xs text-emergency font-semibold mt-1">24/7 Emergency Care</p>`;
+                        card.onclick = () => {
+                            mapInstance.setView([itemLat, itemLon], 15);
+                            L.popup().setLatLng([itemLat, itemLon]).setContent(`<strong>${name}</strong>`).openOn(mapInstance);
+                        };
+                        listContainer.appendChild(card);
+
+                        // Drop Marker Pin on Layout Map
+                        L.marker([itemLat, itemLon]).addTo(mapInstance).bindPopup(`<strong>${name}</strong>`);
+                    });
+                })
+                .catch(() => {
+                    listContainer.innerHTML = '<p class="text-sm text-emergency">Failed to query active mapping data servers.</p>';
+                });
+        }
+
+        // Initialize Icons Framework
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+        });
     </script>
 </body>
 </html>
