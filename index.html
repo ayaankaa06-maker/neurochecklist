@@ -2,398 +2,291 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BEFAST.care | Stroke Emergency Tool</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stroke Awareness — Ayaan Patel</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <script>
-        // Custom Tailwind Aesthetic Extensions matching your React theme
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Manrope', 'sans-serif'],
-                        display: ['Cabinet Grotesk', 'sans-serif'],
-                    },
-                    colors: {
-                        cream: '#F8F7F4',
-                        sand: '#E5E0D8',
-                        sage: '#D1D9D3',
-                        forest: '#2D4A3E',
-                        'forest-dark': '#1E332B',
-                        emergency: '#D33F49',
-                        'emergency-dark': '#B91C1C',
-                        'emergency-soft': '#FFF0F0',
-                    }
-                }
-            }
-        }
-    </script>
+    :root {
+      --navy: #0D2D6B;
+      --blue: #1A56B0;
+      --blue-mid: #3B82D4;
+      --sky: #A8CFEF;
+      --sky-light: #DBF0FF;
+      --white: #FFFFFF;
+      --gray-100: #F0F6FC;
+      --gray-200: #D6E6F5;
+      --gray-500: #4A6A8A;
+      --gray-800: #0A1A2E;
+      --max: 880px;
+    }
 
-    <style>
-        @import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700,900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--gray-800); line-height: 1.6; }
 
-        body {
-            background-color: #F8F7F4;
-            color: #1A1A1A;
-            font-family: 'Manrope', sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }
-        .font-display { font-family: 'Cabinet Grotesk', sans-serif; }
-        
-        .page { display: none; }
-        .page.active { display: block; }
+    nav {
+      position: sticky; top: 0;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid var(--sky);
+      z-index: 100; padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: var(--max); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; height: 62px;
+    }
+    .nav-logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--navy); text-decoration: none; }
+    .nav-logo span { color: var(--blue-mid); }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 13px; font-weight: 500; color: var(--gray-500); transition: color 0.2s; }
+    .nav-links a:hover { color: var(--navy); }
 
-        @keyframes emergency-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(211, 63, 73, 0.6); }
-            50% { box-shadow: 0 0 0 16px rgba(211, 63, 73, 0); }
-        }
-        .animate-emergency-pulse { animation: emergency-pulse 1.8s ease-out infinite; }
-        
-        #map {
-            height: 480px;
-            width: 100%;
-            z-index: 1;
-        }
-        .leaflet-container { font-family: 'Manrope', sans-serif !important; }
-    </style>
+    .hero {
+      background: linear-gradient(150deg, var(--navy) 0%, var(--blue) 60%, var(--blue-mid) 100%);
+      padding: 88px 24px 80px; text-align: center; color: var(--white);
+    }
+    .hero-eyebrow {
+      display: inline-block; background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: var(--white); font-size: 11px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 5px 16px; border-radius: 20px; margin-bottom: 22px;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 6vw, 60px);
+      line-height: 1.1; max-width: 700px; margin: 0 auto 20px;
+    }
+    .hero h1 span { color: var(--sky); }
+    .hero p { font-size: 17px; color: rgba(255,255,255,0.78); max-width: 520px; margin: 0 auto 44px; }
+    .hero-stat-row { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+    .hero-stat-num { font-family: 'DM Serif Display', serif; font-size: 34px; color: var(--sky); display: block; }
+    .hero-stat-label { font-size: 12px; color: rgba(255,255,255,0.65); }
+
+    section { padding: 76px 24px; }
+    section.alt { background: var(--gray-100); }
+    .section-inner { max-width: var(--max); margin: 0 auto; }
+    .section-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--blue-mid); margin-bottom: 10px; }
+    .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(26px, 4vw, 38px); margin-bottom: 14px; line-height: 1.15; color: var(--navy); }
+    .section-lead { font-size: 16px; color: var(--gray-500); max-width: 580px; margin-bottom: 44px; }
+
+    .befast-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .befast-card {
+      background: var(--white); border: 2px solid var(--sky);
+      border-radius: 16px; padding: 30px 22px; text-align: center;
+      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+    }
+    .befast-card:hover { box-shadow: 0 10px 28px rgba(26,86,176,0.12); transform: translateY(-3px); border-color: var(--blue-mid); }
+    .befast-letter { font-family: 'DM Serif Display', serif; font-size: 56px; color: var(--blue); line-height: 1; margin-bottom: 8px; }
+    .befast-word { font-weight: 700; font-size: 15px; color: var(--navy); margin-bottom: 8px; }
+    .befast-desc { font-size: 13px; color: var(--gray-500); line-height: 1.6; }
+    .befast-callout {
+      background: var(--sky-light); border-left: 4px solid var(--blue);
+      border-radius: 10px; padding: 18px 22px;
+      font-size: 15px; color: var(--navy); font-weight: 600; line-height: 1.6;
+    }
+
+    .brain-steps { display: flex; flex-direction: column; gap: 18px; }
+    .brain-step {
+      display: flex; gap: 20px; align-items: flex-start;
+      background: var(--white); border: 1px solid var(--gray-200); border-radius: 14px; padding: 24px;
+    }
+    .brain-step-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--sky-light); color: var(--blue);
+      font-weight: 700; font-size: 16px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      border: 2px solid var(--sky);
+    }
+    .brain-step h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--navy); }
+    .brain-step p { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+
+    .types-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+    .type-card { border-radius: 16px; padding: 30px 24px; background: var(--white); border: 2px solid var(--sky); }
+    .type-tag {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 14px;
+    }
+    .tag-navy { background: var(--navy); color: var(--white); }
+    .tag-blue { background: var(--blue); color: var(--white); }
+    .tag-sky { background: var(--sky-light); color: var(--blue); border: 1px solid var(--sky); }
+    .type-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 10px; color: var(--navy); }
+    .type-card p { font-size: 14px; color: var(--gray-500); line-height: 1.6; margin-bottom: 14px; }
+    .type-pct { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--blue); }
+    .type-pct-label { font-size: 12px; color: var(--gray-500); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .stat-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 14px; padding: 28px 20px; text-align: center; }
+    .stat-num { font-family: 'DM Serif Display', serif; font-size: 40px; color: var(--blue); display: block; line-height: 1; margin-bottom: 10px; }
+    .stat-desc { font-size: 13px; color: var(--gray-500); line-height: 1.5; }
+
+    .prevention-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .prev-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 14px; padding: 26px; }
+    .prev-icon { font-size: 28px; margin-bottom: 12px; }
+    .prev-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--navy); }
+    .prev-card p { font-size: 13px; color: var(--gray-500); line-height: 1.6; }
+
+    .quiz-wrap { background: var(--white); border: 2px solid var(--sky); border-radius: 18px; padding: 38px; max-width: 640px; margin: 0 auto; }
+    .quiz-progress-bar { height: 5px; background: var(--gray-200); border-radius: 4px; margin-bottom: 28px; overflow: hidden; }
+    .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue-mid)); border-radius: 4px; transition: width 0.4s ease; }
+    .quiz-q { font-size: 17px; font-weight: 600; margin-bottom: 20px; line-height: 1.4; color: var(--navy); }
+    .quiz-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .quiz-option {
+      padding: 14px 18px; border: 1.5px solid var(--gray-200); border-radius: 10px;
+      cursor: pointer; font-size: 14px; background: var(--white); text-align: left;
+      transition: border-color 0.2s, background 0.2s; font-family: 'Inter', sans-serif; color: var(--gray-800);
+    }
+    .quiz-option:hover { border-color: var(--blue-mid); background: var(--sky-light); }
+    .quiz-option.correct { border-color: #1A7A4A; background: #E8F7EF; color: #1A7A4A; font-weight: 600; }
+    .quiz-option.wrong { border-color: #C0392B; background: #FDECEA; color: #C0392B; font-weight: 600; }
+    .quiz-option:disabled { cursor: default; }
+    .quiz-feedback { font-size: 14px; padding: 13px 16px; border-radius: 8px; margin-bottom: 16px; display: none; line-height: 1.6; }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.correct { background: #E8F7EF; color: #1A7A4A; }
+    .quiz-feedback.wrong { background: #FDECEA; color: #C0392B; }
+    .quiz-next {
+      background: var(--blue); color: white; border: none;
+      padding: 12px 30px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; display: none; font-family: 'Inter', sans-serif; transition: background 0.2s;
+    }
+    .quiz-next:hover { background: var(--navy); }
+    .quiz-next.show { display: inline-block; }
+    .quiz-result { text-align: center; }
+    .quiz-result-score { font-family: 'DM Serif Display', serif; font-size: 60px; color: var(--blue); line-height: 1; margin-bottom: 10px; }
+    .quiz-result p { font-size: 15px; color: var(--gray-500); margin-bottom: 24px; }
+    .quiz-restart { background: var(--blue); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+
+    footer { background: var(--navy); color: rgba(255,255,255,0.6); text-align: center; padding: 40px 24px; font-size: 13px; }
+    footer strong { color: var(--sky); }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .hero { padding: 60px 20px 52px; }
+      section { padding: 52px 20px; }
+      .quiz-wrap { padding: 22px 16px; }
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col bg-cream">
+<body>
 
-    <header class="backdrop-blur-xl bg-cream/80 border-b border-sand z-50 sticky top-0">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 md:h-20 flex items-center justify-between gap-4">
-            <div onclick="showPage('home')" class="flex items-center gap-2 group cursor-pointer">
-                <span class="w-9 h-9 rounded-xl bg-forest flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
-                    <i data-lucide="activity" class="w-5 h-5" stroke-width="2.5"></i>
-                </span>
-                <span class="font-display font-bold tracking-tight text-lg md:text-xl text-[#1A1A1A]">
-                    BEFAST<span class="text-emergency">.</span>care
-                </span>
-            </div>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">Stroke<span>Aware</span></a>
+    <ul class="nav-links">
+      <li><a href="#befast">BE-FAST</a></li>
+      <li><a href="#brain">Brain Science</a></li>
+      <li><a href="#types">Types</a></li>
+      <li><a href="#stats">Statistics</a></li>
+      <li><a href="#prevention">Prevention</a></li>
+      <li><a href="#quiz">Quiz</a></li>
+    </ul>
+  </div>
+</nav>
 
-            <nav class="hidden md:flex items-center gap-1" aria-label="Primary">
-                <button onclick="showPage('home')" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-[#4A4A4A] hover:bg-sand">Home</button>
-                <button onclick="startAssessment()" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-[#4A4A4A] hover:bg-sand">Assess</button>
-                <button onclick="showPage('hospitals')" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-[#4A4A4A] hover:bg-sand">Hospitals</button>
-                <button onclick="showPage('learn')" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-[#4A4A4A] hover:bg-sand">Learn</button>
-            </nav>
+<div class="hero">
+  <span class="hero-eyebrow">Stroke Education · By Ayaan Patel</span>
+  <h1>Every second counts.<br><span>Know the signs.</span></h1>
+  <p>Strokes are largely preventable and treatable — but only when recognized fast. Learn the BE-FAST method and protect the people you love.</p>
+  <div class="hero-stat-row">
+    <div class="hero-stat"><span class="hero-stat-num">795K</span><span class="hero-stat-label">strokes per year in the US</span></div>
+    <div class="hero-stat"><span class="hero-stat-num">80%</span><span class="hero-stat-label">are preventable</span></div>
+    <div class="hero-stat"><span class="hero-stat-num">1.9M</span><span class="hero-stat-label">brain cells lost per minute</span></div>
+  </div>
+</div>
 
-            <a href="tel:911" class="inline-flex items-center gap-2 bg-emergency text-white rounded-full px-4 md:px-5 py-2 md:py-2.5 text-sm font-bold hover:bg-emergency-dark transition-all shadow-sm">
-                <i data-lucide="phone" class="w-4 h-4" stroke-width="2.5"></i>
-                <span>Call 911</span>
-            </a>
-        </div>
-    </header>
+<section id="befast">
+  <div class="section-inner">
+    <p class="section-eyebrow">Recognize a Stroke</p>
+    <h2 class="section-title">The BE-FAST Method</h2>
+    <p class="section-lead">BE-FAST is the most up-to-date method for identifying a stroke. It adds two critical early warning signs — Balance and Eyes — to the original FAST acronym.</p>
+    <div class="befast-grid">
+      <div class="befast-card"><div class="befast-letter">B</div><div class="befast-word">Balance</div><div class="befast-desc">Sudden loss of balance or coordination, dizziness, or difficulty walking that came on without warning.</div></div>
+      <div class="befast-card"><div class="befast-letter">E</div><div class="befast-word">Eyes</div><div class="befast-desc">Sudden vision changes in one or both eyes — blurred, double, or complete loss of vision.</div></div>
+      <div class="befast-card"><div class="befast-letter">F</div><div class="befast-word">Face Drooping</div><div class="befast-desc">Ask the person to smile. Is one side of their face drooping or numb? An uneven smile is a warning sign.</div></div>
+      <div class="befast-card"><div class="befast-letter">A</div><div class="befast-word">Arm Weakness</div><div class="befast-desc">Ask them to raise both arms. Does one drift downward or feel weak and numb?</div></div>
+      <div class="befast-card"><div class="befast-letter">S</div><div class="befast-word">Speech Difficulty</div><div class="befast-desc">Ask them to repeat a simple phrase. Is their speech slurred, strange, or impossible to understand?</div></div>
+      <div class="befast-card"><div class="befast-letter">T</div><div class="befast-word">Time to Call 911</div><div class="befast-desc">If you observe ANY of these signs, call emergency services immediately. Note the time symptoms started.</div></div>
+    </div>
+    <div class="befast-callout">⚡ Time is brain. For every minute a stroke goes untreated, roughly 1.9 million neurons die. The BE-FAST method catches up to 95% of strokes — acting on it immediately can save a life or prevent permanent disability.</div>
+  </div>
+</section>
 
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        
-        <section id="home" class="page active animate-fade-in">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center py-6 md:py-12">
-                <div class="lg:col-span-7">
-                    <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-emergency-dark bg-emergency-soft border border-emergency/20 px-4 py-2 rounded-full">
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                        Stroke can strike in seconds
-                    </span>
-                    <h1 class="font-display mt-6 text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter text-[#1A1A1A] leading-[0.95]">
-                        Recognize a stroke.<br />
-                        <span class="text-forest">Save a life.</span>
-                    </h1>
-                    <p class="mt-6 text-base md:text-lg text-[#4A4A4A] leading-relaxed max-w-xl">
-                        Use the <strong>BEFAST</strong> method — a simple, doctor-recommended check — to spot the warning signs of a stroke in seconds. Then find the closest emergency hospital, fast.
-                    </p>
+<section id="brain" class="alt">
+  <div class="section-inner">
+    <p class="section-eyebrow">Neuroscience</p>
+    <h2 class="section-title">What happens in the brain during a stroke</h2>
+    <p class="section-lead">A stroke is a neurological emergency. Understanding the biology explains why every second of treatment matters.</p>
+    <div class="brain-steps">
+      <div class="brain-step"><div class="brain-step-icon">1</div><div><h3>Blood supply is interrupted</h3><p>The brain relies on a constant supply of oxygen-rich blood. During a stroke, a blood vessel either becomes blocked by a clot (ischemic) or bursts (hemorrhagic), cutting off blood flow to a region of the brain.</p></div></div>
+      <div class="brain-step"><div class="brain-step-icon">2</div><div><h3>Neurons begin to die</h3><p>Without oxygen, neurons — the brain's nerve cells — begin dying within minutes. The core area loses cells rapidly, while a surrounding "penumbra" zone is at risk but may still be saved with fast treatment.</p></div></div>
+      <div class="brain-step"><div class="brain-step-icon">3</div><div><h3>Brain functions are disrupted</h3><p>Different areas of the brain control different functions. Depending on where the stroke occurs, it can affect movement, speech, vision, balance, memory, or personality. The left hemisphere controls the right side of the body, and vice versa.</p></div></div>
+      <div class="brain-step"><div class="brain-step-icon">4</div><div><h3>The damage cascade spreads</h3><p>As cells die, they release toxic chemicals that damage neighboring neurons — a process called excitotoxicity. Inflammation and swelling follow, which can compress brain tissue and worsen outcomes significantly.</p></div></div>
+      <div class="brain-step"><div class="brain-step-icon">5</div><div><h3>Treatment restores blood flow</h3><p>For ischemic strokes, a clot-dissolving drug called tPA can restore blood flow if given within 4.5 hours of symptom onset. The faster treatment begins, the more brain tissue — and function — can be saved.</p></div></div>
+    </div>
+  </div>
+</section>
 
-                    <div class="mt-10 flex flex-wrap items-center gap-4">
-                        <button onclick="startAssessment()" class="bg-forest text-white hover:bg-forest-dark transition-all rounded-full px-8 py-4 font-semibold shadow-sm inline-flex items-center justify-center gap-2 group">
-                            Start BEFAST check
-                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                        </button>
-                        <button onclick="showPage('hospitals')" class="bg-transparent border-2 border-forest text-forest hover:bg-sage transition-all rounded-full px-8 py-4 font-semibold inline-flex items-center justify-center gap-2">
-                            <i data-lucide="map-pin" class="w-4 h-4"></i>
-                            Find nearest hospital
-                        </button>
-                    </div>
-                </div>
+<section id="types">
+  <div class="section-inner">
+    <p class="section-eyebrow">Types of Stroke</p>
+    <h2 class="section-title">Not all strokes are the same</h2>
+    <p class="section-lead">There are three main types of stroke, each with different causes, risks, and treatments.</p>
+    <div class="types-grid">
+      <div class="type-card"><span class="type-tag tag-navy">Most Common</span><h3>Ischemic Stroke</h3><p>Caused by a blood clot blocking an artery supplying blood to the brain. The clot can form locally or travel from elsewhere in the body.</p><div class="type-pct">87%</div><div class="type-pct-label">of all strokes</div></div>
+      <div class="type-card"><span class="type-tag tag-blue">Most Severe</span><h3>Hemorrhagic Stroke</h3><p>A blood vessel in the brain ruptures and bleeds into surrounding tissue. Often caused by high blood pressure or a weakened vessel wall such as an aneurysm.</p><div class="type-pct">13%</div><div class="type-pct-label">of all strokes</div></div>
+      <div class="type-card"><span class="type-tag tag-sky">Warning Sign</span><h3>TIA (Mini-Stroke)</h3><p>Produces temporary stroke-like symptoms that resolve within 24 hours. It's a serious warning — never ignore it.</p><div class="type-pct">1 in 3</div><div class="type-pct-label">TIA patients have a full stroke within a year</div></div>
+    </div>
+  </div>
+</section>
 
-                <div class="lg:col-span-5">
-                    <div class="bg-emergency-soft rounded-2xl border-l-8 border-emergency p-6 md:p-8 shadow-md">
-                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-emergency-dark">Suspect a stroke right now?</p>
-                        <h3 class="font-display text-2xl md:text-3xl font-bold text-[#1A1A1A] mt-2">Don't wait. Don't drive.</h3>
-                        <p class="text-[#4A4A4A] mt-3 leading-relaxed">
-                          Call 911 immediately. Note the <strong>exact time</strong> the first symptom appeared.
-                        </p>
-                        <a href="tel:911" class="mt-6 bg-emergency text-white hover:bg-emergency-dark transition-all rounded-lg px-8 py-5 font-bold uppercase tracking-widest shadow-lg flex items-center justify-center gap-3 text-lg animate-emergency-pulse">
-                          <i data-lucide="phone" class="w-6 h-6" stroke-width="2.5"></i>
-                          Call 911
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
+<section id="stats" class="alt">
+  <div class="section-inner">
+    <p class="section-eyebrow">By the Numbers</p>
+    <h2 class="section-title">The scale of stroke in America</h2>
+    <p class="section-lead">Stroke is more common — and more preventable — than most people realize.</p>
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-num">795K</span><span class="stat-desc">Americans experience a stroke every year</span></div>
+      <div class="stat-card"><span class="stat-num">#5</span><span class="stat-desc">Leading cause of death in the United States</span></div>
+      <div class="stat-card"><span class="stat-num">1 in 4</span><span class="stat-desc">Stroke survivors will have another stroke in their lifetime</span></div>
+      <div class="stat-card"><span class="stat-num">80%</span><span class="stat-desc">Of strokes are preventable through lifestyle changes</span></div>
+      <div class="stat-card"><span class="stat-num">4.5 hrs</span><span class="stat-desc">Window for tPA clot-busting treatment after symptoms begin</span></div>
+      <div class="stat-card"><span class="stat-num">$56B</span><span class="stat-desc">Annual cost of stroke in healthcare and lost productivity</span></div>
+    </div>
+  </div>
+</section>
 
-        <section id="assessment" class="page max-w-3xl mx-auto bg-white border border-sand rounded-3xl p-6 md:p-10 shadow-sm">
-            <div class="flex items-center justify-between mb-6">
-                <span id="step-letter" class="w-14 h-14 rounded-2xl bg-sage flex items-center justify-center font-display text-3xl font-black text-forest">B</span>
-                <div id="step-progress" class="text-xs font-bold uppercase tracking-[0.15em] text-[#6B6B6B]">Step 1 of 5</div>
-            </div>
-            <h2 id="step-label" class="font-display text-3xl font-bold text-[#1A1A1A]">Balance Assessment</h2>
-            <p id="step-question" class="text-xl text-forest font-semibold mt-4"></p>
-            <p id="step-description" class="text-[#4A4A4A] mt-2 leading-relaxed text-sm bg-cream p-4 rounded-xl border border-sand"></p>
-            
-            <div class="mt-8 flex flex-col sm:flex-row gap-4">
-                <button onclick="handleAnswer(true)" class="flex-1 bg-emergency text-white hover:bg-emergency-dark py-4 px-6 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-2">
-                    <i data-lucide="alert-triangle" class="w-5 h-5"></i> Yes, I observe this symptom
-                </button>
-                <button onclick="handleAnswer(false)" class="flex-1 bg-forest text-white hover:bg-forest-dark py-4 px-6 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-2">
-                    <i data-lucide="check" class="w-5 h-5"></i> No symptom present
-                </button>
-            </div>
-        </section>
+<section id="prevention">
+  <div class="section-inner">
+    <p class="section-eyebrow">Prevention</p>
+    <h2 class="section-title">How to lower your stroke risk</h2>
+    <p class="section-lead">Most strokes are preventable. These lifestyle habits make a significant difference in long-term brain health.</p>
+    <div class="prevention-grid">
+      <div class="prev-card"><div class="prev-icon">🩺</div><h3>Control blood pressure</h3><p>High blood pressure is the single biggest risk factor for stroke. Get it checked regularly and keep it below 120/80.</p></div>
+      <div class="prev-card"><div class="prev-icon">🥗</div><h3>Eat a brain-healthy diet</h3><p>A diet rich in vegetables, fruits, whole grains, and lean protein reduces inflammation and supports healthy blood vessels.</p></div>
+      <div class="prev-card"><div class="prev-icon">🏃</div><h3>Exercise regularly</h3><p>At least 150 minutes of moderate activity per week lowers blood pressure, reduces cholesterol, and improves cardiovascular health.</p></div>
+      <div class="prev-card"><div class="prev-icon">🚭</div><h3>Don't smoke</h3><p>Smoking doubles stroke risk by damaging blood vessel walls and increasing clot formation. Quitting reduces risk almost immediately.</p></div>
+      <div class="prev-card"><div class="prev-icon">💤</div><h3>Sleep well</h3><p>Poor sleep and sleep apnea are linked to higher stroke risk. Aim for 7–9 hours of quality sleep each night.</p></div>
+      <div class="prev-card"><div class="prev-icon">🧠</div><h3>Manage stress</h3><p>Chronic stress raises blood pressure and promotes inflammation. Mindfulness, exercise, and social connection all help reduce risk.</p></div>
+    </div>
+  </div>
+</section>
 
-        <section id="hospitals" class="page">
-            <div id="emergency-alert-banner" class="hidden mb-8 bg-emergency-soft border-l-8 border-emergency rounded-r-2xl p-6 md:p-8 shadow-md">
-                <div class="flex items-start gap-4">
-                    <i data-lucide="clock" class="w-7 h-7 text-emergency-dark flex-shrink-0 mt-1" stroke-width="2.5"></i>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-emergency-dark">Emergency</p>
-                        <h3 class="font-display text-2xl md:text-3xl font-bold text-[#1A1A1A] mt-1">Possible stroke detected. Every minute matters.</h3>
-                        <p class="mt-3 text-[#4A4A4A] leading-relaxed">Brain cells die every second a stroke goes untreated. Do not drive yourself. Call 911 right now.</p>
-                    </div>
-                </div>
-            </div>
+<section id="quiz" class="alt">
+  <div class="section-inner">
+    <p class="section-eyebrow">Test Your Knowledge</p>
+    <h2 class="section-title">Can you spot a stroke?</h2>
+    <p class="section-lead">Take this quick quiz to test what you've learned about BE-FAST and stroke recognition.</p>
+    <div class="quiz-wrap">
+      <div id="quiz-container"></div>
+    </div>
+  </div>
+</section>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div class="lg:col-span-4 bg-white border border-sand rounded-2xl p-6 shadow-sm overflow-y-auto max-h-[480px]">
-                    <h3 class="font-display text-xl font-bold text-[#1A1A1A] mb-4">Nearest ER Facilities</h3>
-                    <div id="hospital-list" class="space-y-4">
-                        <p class="text-sm text-[#6B6B6B]">Awaiting location services configuration sync...</p>
-                    </div>
-                </div>
-                <div class="lg:col-span-8">
-                    <div id="map" class="rounded-2xl border border-sand overflow-hidden shadow-sm"></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="learn" class="page max-w-4xl mx-auto space-y-12">
-            <div>
-                <h2 class="font-display text-4xl font-black tracking-tight text-[#1A1A1A]">Stroke Impact & Global Statistics</h2>
-                <p class="text-[#4A4A4A] mt-2 text-lg">Understanding the clinical severity, critical rescue windows, and real numbers behind stroke incidence helps maximize survivability outcomes.</p>
-            </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div class="bg-white p-6 border border-sand rounded-xl text-center">
-                    <div class="text-4xl font-display font-black text-emergency">No. 5</div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-2">Cause of Death</p>
-                    <p class="text-sm text-[#4A4A4A] mt-2">Stroke stands as the 5th leading cause of death in the United States, taking over 160,000 lives annually.</p>
-                </div>
-                <div class="bg-white p-6 border border-sand rounded-xl text-center">
-                    <div class="text-4xl font-display font-black text-forest">No. 1</div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-2">Cause of Disability</p>
-                    <p class="text-sm text-[#4A4A4A] mt-2">It remains the leading cause of serious long-term functional disability, severely impacting physical mobility.</p>
-                </div>
-                <div class="bg-white p-6 border border-sand rounded-xl text-center">
-                    <div class="text-4xl font-display font-black text-amber-600">1.9 Million</div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-2">Brain Cells Lost</p>
-                    <p class="text-sm text-[#4A4A4A] mt-2">For every single minute a stroke goes untreated, approximately 1.9 million vital neurons die due to oxygen starvation.</p>
-                </div>
-            </div>
-
-            <div class="bg-white border border-sand rounded-2xl p-6 md:p-8">
-                <h3 class="font-display text-2xl font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
-                    <i data-lucide="timer" class="text-emergency"></i> The Critical Treatment Windows
-                </h3>
-                <p class="text-sm text-[#4A4A4A] mb-6 leading-relaxed">
-                    Time is everything during a stroke event. Medical intervention relies on strict pharmacological and surgical timelines from the exact moment symptoms begin.
-                </p>
-                <div class="space-y-6 relative border-l-2 border-sand ml-4 pl-6">
-                    <div class="relative">
-                        <span class="absolute -left-[31px] top-0 bg-emergency text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">1</span>
-                        <h4 class="font-bold text-base text-[#1A1A1A]">0 to 60 Minutes: The Golden Hour</h4>
-                        <p class="text-sm text-[#6B6B6B] mt-1">Receiving specialized care within the first hour gives patients the absolute highest chance of complete, complication-free reversal and physical recovery.</p>
-                    </div>
-                    <div class="relative">
-                        <span class="absolute -left-[31px] top-0 bg-forest text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">2</span>
-                        <h4 class="font-bold text-base text-[#1A1A1A]">Up to 3 to 4.5 Hours: The Clot-Busting Thrombolytic Window</h4>
-                        <p class="text-sm text-[#6B6B6B] mt-1">Alteplase or Tenecteplase (tPA) injections must be administered via IV within this strict window to dissolve blood clots safely. Beyond 4.5 hours, the risk of brain bleeding increases drastically.</p>
-                    </div>
-                    <div class="relative">
-                        <span class="absolute -left-[31px] top-0 bg-zinc-700 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">3</span>
-                        <h4 class="font-bold text-base text-[#1A1A1A]">Up to 24 Hours: Endovascular Mechanical Thrombectomy</h4>
-                        <p class="text-sm text-[#6B6B6B] mt-1">For large-vessel blockages, specialized surgical teams can navigate catheters inside the brain to pull clots out physically. This option diminishes rapidly as tissue decays.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 border border-sand rounded-xl">
-                    <h3 class="font-display text-xl font-bold text-forest mb-2">Ischemic Stroke (Blood Blockage)</h3>
-                    <p class="text-sm text-[#6B6B6B] leading-relaxed">Occurs when clotting anomalies or plaque buildup lodge tightly inside internal cerebral arterial vessels, shutting down localized oxygen pathways. This represents roughly 87% of all recorded incidents.</p>
-                </div>
-                <div class="bg-white p-6 border border-sand rounded-xl">
-                    <h3 class="font-display text-xl font-bold text-emergency mb-2">Hemorrhagic Stroke (Vessel Rupture)</h3>
-                    <p class="text-sm text-[#6B6B6B] leading-relaxed">Triggered when structurally compromised arteries or aneurysms burst, leaking high-pressure blood metrics directly into cerebral compartments, building deadly intracranial pressure.</p>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="bg-[#1A1A1A] text-sand mt-24">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-zinc-800 pb-8">
-                <div>
-                    <span class="font-display font-bold text-xl text-white">BEFAST<span class="text-emergency">.</span>care</span>
-                    <p class="text-xs text-zinc-400 mt-1 max-w-sm">Informational checklist platform created to distribute stroke symptom mapping algorithms accurately to public audiences.</p>
-                </div>
-                <a href="tel:911" class="bg-emergency text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 hover:bg-emergency-dark transition-all">
-                    <i data-lucide="phone" class="w-4 h-4"></i> Call 911 Immediately
-                </a>
-            </div>
-            <p class="text-[11px] text-zinc-500 mt-6 leading-relaxed"><strong>Medical disclaimer:</strong> This tracking utility acts as an educational compilation schema. It holds no structural authority to override diagnostic evaluations conducted by licensed emergency practitioners.</p>
-        </div>
-    </footer>
-
-    <script>
-        // Page Router Configuration
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            
-            if (pageId === 'hospitals') {
-                setTimeout(initializeMapModule, 250);
-            }
-        }
-
-        // Checklist Definition Matrix Array
-        const BEFAST_STEPS = [
-            { key: "balance", letter: "B", label: "Balance", question: "Is the person suddenly losing balance or coordination?", description: "Look for sudden dizziness, loss of balance, or trouble walking that wasn't there moments ago." },
-            { key: "eyes", letter: "E", label: "Eyes", question: "Are they experiencing sudden vision changes?", description: "Blurred, double, or lost vision in one or both eyes that came on without warning." },
-            { key: "face", letter: "F", label: "Face", question: "Is one side of their face drooping?", description: "Ask them to smile. Does one side of the face droop, or does the smile look uneven?" },
-            { key: "arms", letter: "A", label: "Arms", question: "Is one arm weak or drifting downward?", description: "Ask them to raise both arms. Does one arm drift down, feel numb, or refuse to move?" },
-            { key: "speech", letter: "S", label: "Speech", question: "Is their speech slurred or hard to understand?", description: "Listen closely for slurring, structurally scrambled vocabulary arrangements, or complete muteness." }
-        ];
-
-        let assessmentIndex = 0;
-        let answersLogged = [];
-
-        function startAssessment() {
-            assessmentIndex = 0;
-            answersLogged = [];
-            renderAssessmentStep();
-            showPage('assessment');
-        }
-
-        function renderAssessmentStep() {
-            const step = BEFAST_STEPS[assessmentIndex];
-            document.getElementById('step-letter').innerText = step.letter;
-            document.getElementById('step-progress').innerText = `Step ${assessmentIndex + 1} of 5`;
-            document.getElementById('step-label').innerText = `${step.label} Check`;
-            document.getElementById('step-question').innerText = step.question;
-            document.getElementById('step-description').innerText = step.description;
-        }
-
-        function handleAnswer(symptomPresent) {
-            answersLogged.push(symptomPresent);
-            if (assessmentIndex < BEFAST_STEPS.length - 1) {
-                assessmentIndex++;
-                renderAssessmentStep();
-            } else {
-                const positiveMarkersFound = answersLogged.includes(true);
-                if (positiveMarkersFound) {
-                    document.getElementById('emergency-alert-banner').classList.remove('hidden');
-                    showPage('hospitals');
-                } else {
-                    alert("No immediate indicators flagged via this assessment layer. Consult healthcare channels manually if conditions deteriorate.");
-                    showPage('home');
-                }
-            }
-        }
-
-        // Geospatial Leaflet Engine Integration
-        let mapInstance = null;
-        let userMarker = null;
-
-        function initializeMapModule() {
-            let backupCoords = [37.7749, -122.4194]; // San Francisco Default Backup
-
-            if (!mapInstance) {
-                mapInstance = L.map('map').setView(backupCoords, 12);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap entries'
-                }).addTo(mapInstance);
-            }
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((pos) => {
-                    const lat = pos.coords.latitude;
-                    const lon = pos.coords.longitude;
-                    
-                    mapInstance.setView([lat, lon], 13);
-
-                    if (userMarker) mapInstance.removeLayer(userMarker);
-                    userMarker = L.circleMarker([lat, lon], { color: '#2D4A3E', radius: 10, fillOpacity: 0.8 }).addTo(mapInstance).bindPopup("Current Position Pin");
-
-                    executeOverpassHospitalSearch(lat, lon);
-                });
-            }
-        }
-
-        function executeOverpassHospitalSearch(lat, lon) {
-            const query = `[out:json][timeout:25];(node["amenity"="hospital"](around:15000,${lat},${lon});way["amenity"="hospital"](around:15000,${lat},${lon}););out center;`;
-            const endpoint = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
-
-            const listContainer = document.getElementById('hospital-list');
-            listContainer.innerHTML = '<p class="text-sm text-[#4A4A4A]">Querying nearby emergency network grid...</p>';
-
-            fetch(endpoint)
-                .then(res => res.json())
-                .then(data => {
-                    listContainer.innerHTML = '';
-                    const elements = data.elements || [];
-
-                    if (elements.length === 0) {
-                        listContainer.innerHTML = '<p class="text-sm text-amber-600">No facilities registered within localized search fields.</p>';
-                        return;
-                    }
-
-                    elements.forEach(element => {
-                        const name = element.tags.name || "Emergency Facility Hub";
-                        const itemLat = element.lat || (element.center && element.center.lat);
-                        const itemLon = element.lon || (element.center && element.center.lon);
-
-                        if (!itemLat || !itemLon) return;
-
-                        // Create Side Card Layout
-                        const card = document.createElement('div');
-                        card.className = "p-4 bg-cream rounded-xl border border-sand hover:border-forest cursor-pointer transition-colors";
-                        card.innerHTML = `<h4 class="font-bold text-sm text-[#1A1A1A]">${name}</h4><p class="text-xs text-emergency font-semibold mt-1">24/7 Emergency Care</p>`;
-                        card.onclick = () => {
-                            mapInstance.setView([itemLat, itemLon], 15);
-                            L.popup().setLatLng([itemLat, itemLon]).setContent(`<strong>${name}</strong>`).openOn(mapInstance);
-                        };
-                        listContainer.appendChild(card);
-
-                        // Drop Marker Pin on Layout Map
-                        L.marker([itemLat, itemLon]).addTo(mapInstance).bindPopup(`<strong>${name}</strong>`);
-                    });
-                })
-                .catch(() => {
-                    listContainer.innerHTML = '<p class="text-sm text-emergency">Failed to query active mapping data servers.</p>';
-                });
-        }
-
-        // Initialize Icons Framework
-        document.addEventListener("DOMContentLoaded", () => {
-            lucide.createIcons();
-        });
-    </script>
-</body>
-</html>
+<footer>
+  <p>Created by <strong>Ayaan Patel</strong> &nbsp;·&nbsp; Stroke Awareness Education</p>
+  <p style="margin-top: 8px;">Information sourced from the American Stroke Association and the CDC.</p>
+  <p style="margin-top: 6px; font-size: 12px; opacity: 0.5;">This site is for educational purposes only. Always call 911 in a medical emergency.</p>
+</footer>
